@@ -33,7 +33,7 @@ if (isset($_POST['submit'])) {
                     case 'isannoitsija':
                     case 'tyontekija':
                     case 'toimisto':
-                        header('Location: tyontekijanakymat.php');
+                        header('Location: index.php');
                         break;
                     default:
                         echo "Unhandled role: {$user['rooli']}"; 
