@@ -8,7 +8,7 @@ if (!isset($_SESSION['sposti']) || !isset($_SESSION['user_role'])) {
 }
 
 $kayttajarooli = $_SESSION['user_role'];
-$kayttajaID = $_SESSION['userID'];
+$kayttajaID = isset($_SESSION['userID']) ? $_SESSION['userID'] : null;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (in_array($kayttajarooli, ['asukas', 'tyontekija', 'isannoitsija']) && isset($_POST['create_report'])) {
