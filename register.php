@@ -1,15 +1,17 @@
 <?php require "config.php";?>
 <?php require "includes/header.php"; ?>
+
 <?php 
   if(isset($_SESSION['sposti'])){
     header('location: index.php');
+    exit;
   }
 ?>
 
 <?php 
-$lomakeOk = true; // Muuttuja, joka määrittää, pitäisikö lomake lähettää vai ei
+$lomakeOk = true;
 
-if(isset($_POST['submit'])){     //tarkistetaan onko submit -nappia painettu
+if(isset($_POST['submit'])){ 
   if($_POST['firstname']== '' OR $_POST['lastname']== '' OR $_POST['address']== '' OR $_POST['zip']== '' OR $_POST['city']== '' OR $_POST['email']== '' OR  $_POST['phone']== '' OR $_POST ['password'] == '' OR $_POST['confirmPassword']== ''){
     echo "<script type='text/javascript'>alert('Tietoja puuttuu!');</script>";
     $lomakeOk = false; 
@@ -22,57 +24,61 @@ if(isset($_POST['submit'])){     //tarkistetaan onko submit -nappia painettu
     $postinumero = $_POST['zip'];
     $paikkakunta = $_POST['city'];
     $puhelin = $_POST['phone'];
-    $email = $_POST['email'];
+    $user = $_POST['email'];
     $salasana = $_POST['password'];
-    $taloyhtio = $_POST['taloyhtio'];  
+    $taloyhtio = $_POST['taloyhtio']; 
 
-    //Tarkista onko email jo olemassa
     $tarkistaEmail = $yhteys->prepare("SELECT * FROM kayttajat WHERE sposti = :sposti");
-    $tarkistaEmail->execute([':sposti' => $email]);
+    $tarkistaEmail->execute([':sposti' => $user]);
 
     if ($tarkistaEmail->rowCount() > 0) {
       echo "<script type='text/javascript'>alert('Antamallasi sähköpostiosoitteella on jo luotu käyttäjätili!');</script>";    
-      $lomakeOk = false; // Älä lähetä lomaketta, jos sähköpostiosoite on jo olemassa
+      $lomakeOk = false; 
     } 
 
 
     if ($lomakeOk) {
-      $lisaa = $yhteys->prepare("INSERT INTO kayttajat (etunimi, sukunimi, katuosoite, postinumero, paikkakunta, puhelin, sposti, salasana) VALUES (:etunimi, :sukunimi, :katuosoite, :postinumero, :paikkakunta, :puhelin, :sposti, :salasana)");            
-      $lisaa->execute([
-        ':etunimi' => $etunimi,
-        ':sukunimi' => $sukunimi,
-        ':katuosoite' => $katuosoiteJaHuoneisto, // Tallenna katuosoite ja huoneisto yhteen sarakkeeseen
-        ':postinumero' => $postinumero,
-        ':paikkakunta' => $paikkakunta,
-        ':puhelin' => $puhelin,
-        ':sposti' => $email,
-        ':salasana' => password_hash($salasana, PASSWORD_DEFAULT),
-      ]);
-  
-      // Tallenna uuden käyttäjän ID sessioon
+  if ($lomakeOk) {
+    $user_role = 'asukas';
+    $lisaa = $yhteys->prepare("INSERT INTO kayttajat (etunimi, sukunimi, katuosoite, postinumero, paikkakunta, puhelin, sposti, salasana, rooli) VALUES (:etunimi, :sukunimi, :katuosoite, :postinumero, :paikkakunta, :puhelin, :sposti, :salasana, :rooli)");            
+    $lisaa->execute([
+      ':etunimi' => $etunimi,
+      ':sukunimi' => $sukunimi,
+      ':katuosoite' => $katuosoiteJaHuoneisto, 
+      ':postinumero' => $postinumero,
+      ':paikkakunta' => $paikkakunta,
+      ':puhelin' => $puhelin,
+      ':sposti' => $user,
+      ':salasana' => password_hash($salasana, PASSWORD_DEFAULT),
+      ':rooli' => $user_role,
+    ]);
+      
       $_SESSION['kayttajaID'] = $yhteys->lastInsertId();
   
-      // Kirjaudu sisään
-      $_SESSION['sposti'] = $email;
-  
-      // Tarkista onko taloyhtiö jo olemassa
+      $_SESSION['user_role'] = $user_role; 
+      $_SESSION['sposti'] = $user;
+      switch ($user_role) {
+        case 'asukas':
+            header('Location: asukas.php');
+            break;
+
       $tarkistaTaloyhtio = $yhteys->prepare("SELECT * FROM taloyhtiot WHERE nimi = :nimi");
       $tarkistaTaloyhtio->execute([':nimi' => $taloyhtio]);
       if ($tarkistaTaloyhtio->rowCount() < 1) {
         $lisaa = $yhteys->prepare("INSERT INTO taloyhtiot (katuosoite, postinumero, paikkakunta, nimi) VALUES (:katuosoite, :postinumero, :paikkakunta, :nimi)");
         $lisaa->execute([
-          ':katuosoite' => $katuosoite, // Tallenna vain katuosoite
+          ':katuosoite' => $katuosoite, 
           ':postinumero' => $postinumero,
           ':paikkakunta' => $paikkakunta,
           ':nimi' => $taloyhtio
         ]);
       }
-  
-      // Ohjaa käyttäjä etusivulle
-      header('Location: index.php');
+    }
+      
+      header('Location: asukas.php');
     }    
+  }  
   }
-  
 }
 ?>
 
