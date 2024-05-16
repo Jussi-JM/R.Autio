@@ -19,7 +19,7 @@ $kehote = $yhteys->prepare($komento);
 
 $kommentti = $vikailmoitus['tyontekijan_kommentti'] ?? '';
 $toimenpide = $vikailmoitus['toimenpide'] ?? '';
-$asunnot = $vikailmoitus['asunnotID'] ?? '';
+$asunnot = isset($vikailmoitus['asunnotID']) ? $vikailmoitus['asunnotID'] : null;
 $suoritetaan = $vikailmoitus['suoritetaan'] ?? '';
 
 $kehote->bindParam(':vikaID', $vikailmoitus['vikaID']);
@@ -29,7 +29,7 @@ $kehote->bindParam(':lisatiedot', $vikailmoitus['lisatiedot']);
 $kehote->bindParam(':luotu', $vikailmoitus['luotu']);
 $kehote->bindParam(':toimenpide', $toimenpide);
 $kehote->bindParam(':tyontekijaID', $vikailmoitus['tyontekijaID']);
-$kehote->bindParam(':asunnotID', $asunnot);
+$kehote->bindParam(':asunnotID', $asunnot, PDO::PARAM_NULL);
 $kehote->bindParam(':status', $vikailmoitus['status']);
 $kehote->bindParam(':suoritetaan', $suoritetaan);
 $kehote->bindParam(':tyontekijan_kommentti', $kommentti);

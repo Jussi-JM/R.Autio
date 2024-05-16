@@ -25,8 +25,18 @@ if (!isset($_SESSION['sposti']) || $_SESSION['user_role'] !== 'toimisto') {
           <p class="card-text"><b>Status:</b> <?php echo 'Valmis'; ?></p>
           <p class="card-text"><b>Prioriteetti:</b> <?php echo $rivi["prioriteetti"]; ?></p>
           <p class="card-text"><b>Toimenpide:</b> <?php echo $rivi["toimenpide"]; ?></p>
-          <p class="card-text"><b>Osoite:</b> <?php echo $rivi["katuosoite"].', '.$rivi["postinumero"].', '.$rivi["paikkakunta"]; ?></p>
-          <p class="card-text"><b>Asunto:</b> <?php echo $rivi["asunnotID"]; ?></p>
+          <p class="card-text"><b>Osoite:</b>  <?php 
+                                $osoite = explode(' ', $rivi["katuosoite"]);
+                                $asunto = end($osoite);
+                                if (is_numeric($asunto)) {
+                                    array_pop($osoite);
+                                }
+                                $osoite_str = implode(' ', $osoite) . ', ' . $rivi["postinumero"] . ', ' . $rivi["paikkakunta"]; 
+                                echo $osoite_str; 
+                            ?></p>
+                            <p class="card-text"><b>Asunto:</b>  <?php 
+                                echo $asunto; 
+                            ?></p>
           <p class="card-text"><b>Ilmoittajan puhelinnumero:</b> <?php echo $rivi["etunimi"].' '.$rivi["sukunimi"].' '.$rivi["puhelin"]; ?></p>
           <p class="card-text"><b>Lisätiedot:</b> <?php echo $rivi["lisatiedot"]; ?></p>
         </div>
