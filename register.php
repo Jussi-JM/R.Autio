@@ -57,6 +57,8 @@ if(isset($_POST['submit'])){
   
       $_SESSION['user_role'] = $user_role; 
       $_SESSION['sposti'] = $user;
+      $_SESSION['userID'] = $_SESSION['kayttajaID'];
+
       switch ($user_role) {
         case 'asukas':
             header('Location: asukas.php');
